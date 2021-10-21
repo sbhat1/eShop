@@ -40,5 +40,5 @@ jobs:
          # Container registry server url
         login-server: ${{ secrets.ACR_SERVER }}
     - run: |
-        docker build -f src/Web/Dockerfile . -t demoacrsandya.azurecr.io/eshop:${{ github.run_id }}
-        docker push https://demoacrsandya.azurecr.io/eshop:${{ github.run_id }}
+        docker build -f src/Web/Dockerfile . -t demoacrsandya.azurecr.io/v1/eshop:${{ github.run_id }}
+        docker push demoacrsandya.azurecr.io/v1/eshop:${{ github.run_id }}
