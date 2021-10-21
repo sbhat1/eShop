@@ -42,3 +42,55 @@ jobs:
     - run: |
         docker build -f src/Web/Dockerfile . -t ${{ secrets.ACR_SERVER }}/eshop:${{ github.run_id }}
         docker push ${{ secrets.ACR_SERVER }}/eshop:${{ github.run_id }}
+
+  deployStaging:
+    runs-on: ubuntu-latest
+    needs: buildPushAppImage
+    environment: staging
+    steps:
+    - name: Azure Container Registry Login
+      uses: Azure/docker-login@v1
+      with:
+         # Container registry username
+        username: ${{ secrets.ACR_USER }}
+         # Container registry password
+        password: ${{ secrets.ACR_PASSWORD }}
+         # Container registry server url
+        login-server: ${{ secrets.ACR_SERVER }}
+    - name: Azure Login
+      uses: Azure/login@v1
+      with:
+      # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Azure WebApp
+      uses: Azure/webapps-deploy@v2
+      with:
+        # Name of the Azure Web App
+        app-name: demowebappsandya
+        slot-name: staging
+        images: ${{ secrets.ACR_SERVER }}/eshop:${{ github.run_id }}
+    
+  deployProduction:
+    runs-on: ubuntu-latest
+    needs: buildPushAppImage
+    environment: staging
+    steps:
+    - name: Azure Container Registry Login
+      uses: Azure/docker-login@v1
+      with:
+         # Container registry username
+        username: ${{ secrets.ACR_USER }}
+         # Container registry password
+        password: ${{ secrets.ACR_PASSWORD }}
+         # Container registry server url
+        login-server: ${{ secrets.ACR_SERVER }}
+    - name: Azure Login
+      uses: Azure/login@v1
+      with:
+      # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Swap staging to production
+      run: |
+        az webapp deployment slot swap --name demowebappsandya --resource-group GitHubWorkshop-Sandya --slot staging --target-slot production
+
+
