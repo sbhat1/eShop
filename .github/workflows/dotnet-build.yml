@@ -41,4 +41,4 @@ jobs:
         login-server: ${{ secrets.ACR_SERVER }}
     - run: |
         docker build -f src/web/Dockerfile . -t https://demoacrsandya.azurecr.io/v1/eshop:${{ github.run_id }}
-        docker push ${{ secrets.ACR_SERVER }}/eshop:{{ github.run_id }}
+        docker push ${{ secrets.ACR_SERVER }}/eshop:${{ github.run_id }}
